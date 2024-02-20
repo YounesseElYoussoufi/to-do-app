@@ -1,0 +1,33 @@
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+ 
+jobs:
+
+  build:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: Login to docker hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} 
+      - name: Build docker image
+        run: docker build -t younesseelyoussoufi/todoapp .
+      - name : add tag 
+        run :  docker tag younesseelyoussoufi/todoapp:v1.0  younesseelyoussoufi/todoapp:v1.0
+      - name: Publish image to docker hub
+        run: docker push   younesseelyoussoufi/todoapp:v1.0
+      
+  deploy:
+    needs: build
+    runs-on: [aws-ece]
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull younesseelyoussoufi/todoapp:v1.0
+      - name: Delete old container
+        run: docker rm -f nodejs-app-container
+      - name: Run docker container
+        run: docker run -d -p 3000:3000 --name nodejs-app-container   younesseelyoussoufi/todoapp
