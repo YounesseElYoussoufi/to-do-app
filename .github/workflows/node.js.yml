@@ -1,4 +1,3 @@
-
 name: Node.js CI
 
 on:
@@ -16,10 +15,10 @@ jobs:
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} 
       - name: Build docker image
         run: docker build -t younesseelyoussoufi/todoapp .
-      - name : add tag 
-        run :  docker tag todo-node younesseelyoussoufi/todoapp:v1.
+      - name: Add tag to the built image
+        run: docker tag younesseelyoussoufi/todoapp younesseelyoussoufi/todoapp:v1.0
       - name: Publish image to docker hub
-        run: docker push   younesseelyoussoufi/todoapp:v1.0
+        run: docker push younesseelyoussoufi/todoapp:v1.0
       
   deploy:
     needs: build
@@ -30,4 +29,4 @@ jobs:
       - name: Delete old container
         run: docker rm -f nodejs-app-container
       - name: Run docker container
-        run: docker run -d -p 3000:3000 --name nodejs-app-container   younesseelyoussoufi/todoapp
+        run: docker run -d -p 3000:3000 --name nodejs-app-container younesseelyoussoufi/todoapp:v1.0
